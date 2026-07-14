@@ -216,3 +216,31 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ==============================================================================
+# Arduino & PlatformIO
+# ==============================================================================
+
+# Compiled binaries and build outputs
+*.hex
+*.elf
+*.eep
+*.bin
+*.lst
+*.map
+*.sym
+*.lss
+*.o
+*.d
+
+# Standard Arduino IDE 2.x and temporary build folders
+build-tmp/
+Arduino/build/
+
+# PlatformIO (Frequently used for Arduino development in VS Code)
+.pio/
+.pioenvs/
+.piolibdeps/
+.clang_complete
+.gcc-flags.json
+*.ipch
