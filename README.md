@@ -14,6 +14,5 @@ The platform is built to evaluate the efficiency, thrust output, and power consu
 * **Collect clean engineering data** to inform aircraft design, flight endurance estimates, and propulsion matching.
 
 ## What is the core idea?
-The core idea is **automated, stepwise stationary measurement**. 
-
-Instead of dynamically sweeping the throttle—which introduces aerodynamic transient errors and lag—the system executes a controlled, stepwise test profile (e.g., stepping the ESC throttle from 0% to 100% duty cycle in 5% increments).
+The core idea is to perform standardized, automatic motor-propeller tests and capturing sensor data in the process 
+to gain insights and visualizations.
