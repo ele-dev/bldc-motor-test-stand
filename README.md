@@ -8,7 +8,7 @@ An automated, hardware-in-the-loop (HIL) testing platform designed to systematic
 This is an integrated hardware-and-software test bench that automates the collection of aerodynamic and electrical performance metrics. The setup pairs a Python control application with an Arduino Nano (for low-level actuator control and force sensing) and an OWON SPE8205 programmable bench power supply (acting as the regulated, metered power source).
 
 ## What is it for?
-The platform is built to evaluate the efficiency, thrust output, and power consumption of various motor and propeller pairings. It is used to:
+The platform is built to evaluate the efficiency, thrust output, and power consumption of various motor and propeller pairings. It is meant for UAV design engineers to:
 * **Generate empirical performance curves** (e.g., Thrust vs. RPM, Power vs. RPM, and overall Grams-per-Watt efficiency).
 * **Compare different hardware configurations** under identical, highly repeatable test conditions.
 * **Collect clean engineering data** to inform aircraft design, flight endurance estimates, and propulsion matching.
