@@ -1,0 +1,5 @@
+easy-scpi
+pyserial
+pyvisa-py
+psutil
+zeroconf

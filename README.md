@@ -16,3 +16,6 @@ The platform is built to evaluate the efficiency, thrust output, and power consu
 ## What is the core idea?
 The core idea is to perform standardized, automatic motor-propeller tests and capturing sensor data in the process 
 to gain insights and visualizations.
+
+## License
+MIT — see [LICENSE](LICENSE).
