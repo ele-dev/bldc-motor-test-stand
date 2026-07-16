@@ -6,8 +6,7 @@ const int HX711_DT_PIN = 2;
 
 const float SCALE_CALIBRATION_FACTOR = 660.0f;
 
-HX711 scale;    
-int dutyCycleUs = 1000; // Target pulse width in microseconds
+HX711 scale;
 
 float filteredThrust = 0.0f;
 const float alpha = 0.15f;
@@ -18,7 +17,8 @@ const unsigned long reportInterval = 400;
 // periodic throttle commands must be received faster to keep motor spinning
 const bool safeThrottleControl = true;
 unsigned long lastThrottleCmd = 0;
-const unsigned long throttleCmdInterval = 2000;  
+const unsigned long throttleCmdInterval = 2000;
+int dutyCycleUs = 1000; // Target pulse width in microseconds
 
 String inputBuffer = "";
 
@@ -80,7 +80,8 @@ void loop() {
   unsigned long currentMillis = millis();
   if(currentMillis - lastThrottleCmd >= throttleCmdInterval && safeThrottleControl) {
     // reset throttle to zero to stop motor
-    setESCValue(1000);
+    dutyCycleUs = 1000;
+    setESCValue(dutyCycleUs);
     Serial.println("Reset throttle to zero.");
     lastThrottleCmd = currentMillis;
   }
