@@ -11,13 +11,14 @@ HX711 scale;
 float filteredThrust = 0.0f;
 const float alpha = 0.15f;
 
-unsigned long lastReportTime = 0;
+const bool periodicReports = false;
 const unsigned long reportInterval = 400;
+unsigned long lastReportTime = 0;
 
 // periodic throttle commands must be received faster to keep motor spinning
 const bool safeThrottleControl = true;
+const unsigned long throttleCmdInterval = 3000;
 unsigned long lastThrottleCmd = 0;
-const unsigned long throttleCmdInterval = 2000;
 int dutyCycleUs = 1000; // Target pulse width in microseconds
 
 String inputBuffer = "";
@@ -79,11 +80,13 @@ void loop() {
 
   unsigned long currentMillis = millis();
   if(currentMillis - lastThrottleCmd >= throttleCmdInterval && safeThrottleControl) {
-    // reset throttle to zero to stop motor
-    dutyCycleUs = 1000;
-    setESCValue(dutyCycleUs);
-    Serial.println("Reset throttle to zero.");
-    lastThrottleCmd = currentMillis;
+    if(dutyCycleUs != 1000) {
+      // reset throttle to zero to stop motor
+      dutyCycleUs = 1000;
+      setESCValue(dutyCycleUs);
+      Serial.println("Reset throttle to zero.");
+      lastThrottleCmd = currentMillis;
+    }
   }
 
   if (scale.is_ready()) {
@@ -93,15 +96,17 @@ void loop() {
     filteredThrust = (alpha * rawThrust) + ((1.0f - alpha) * filteredThrust);
   }
 
-  currentMillis = millis();
-  if (currentMillis - lastReportTime >= reportInterval) {
-    Serial.print("Filtered Thrust: ");
-    Serial.print(filteredThrust, 1);
-    Serial.print(" g | Throttle: ");
-    Serial.print(dutyCycleUs);
-    Serial.println(" us");
+  if(periodicReports) {
+    currentMillis = millis();
+    if (currentMillis - lastReportTime >= reportInterval) {
+      Serial.print("Filtered Thrust: ");
+      Serial.print(filteredThrust, 1);
+      Serial.print(" g | Throttle: ");
+      Serial.print(dutyCycleUs);
+      Serial.println(" us");
 
-    lastReportTime = currentMillis;
+      lastReportTime = currentMillis;
+    }
   }
 }
 
