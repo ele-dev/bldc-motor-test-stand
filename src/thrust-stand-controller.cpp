@@ -188,12 +188,6 @@ void processCommand(String command)
             Serial.println("ERR: Missing throttle value.");
         }
     }
-    // Fallback: Check if command is a raw number (e.g. "1200") for backward compatibility
-    else if (isNumeric(command))
-    {
-        int parsedValue = command.toInt();
-        applyThrottle(parsedValue);
-    }
     else
     {
         Serial.print("ERR: Unknown command '");
@@ -216,19 +210,4 @@ void applyThrottle(int parsedValue)
     {
         Serial.println("ERR: Out of range (1000-2000).");
     }
-}
-
-// Simple helper to check if a string contains only a numeric value
-bool isNumeric(const String& str)
-{
-    if (str.length() == 0) return false;
-    for (unsigned int i = 0; i < str.length(); i++)
-    {
-        char c = str.charAt(i);
-        if (!isDigit(c) && c != '-' && c != '+')
-        {
-            return false;
-        }
-    }
-    return true;
 }
