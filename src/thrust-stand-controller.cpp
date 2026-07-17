@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "HX711.h"
 
 const int ESC_PIN = 9; // MUST be Pin 9 (tied to Timer 1 / OC1A)
@@ -22,6 +23,14 @@ unsigned long lastThrottleCmd = 0;
 int dutyCycleUs = 1000; // Target pulse width in microseconds
 
 String inputBuffer = "";
+
+// function declarations
+void setupHardwarePWM();
+void setESCValue(int microseconds);
+void checkSerialCommands();
+void processThrottle(String command);
+void setup();
+void loop();
 
 void setupHardwarePWM() {
   // Configure Pin 9 as an output
