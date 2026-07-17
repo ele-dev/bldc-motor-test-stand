@@ -28,7 +28,9 @@ String inputBuffer = "";
 void setupHardwarePWM();
 void setESCValue(int microseconds);
 void checkSerialCommands();
-void processThrottle(String command);
+void processCommand(String command);
+void applyThrottle(int parsedValue);
+bool isNumeric(const String& str);
 void setup();
 void loop();
 
@@ -88,7 +90,6 @@ void setup()
 
 void loop()
 {
-
     checkSerialCommands();
 
     unsigned long currentMillis = millis();
@@ -139,13 +140,14 @@ void checkSerialCommands()
             if (inputBuffer.length() > 0)
             {
                 inputBuffer.trim();
-                processThrottle(inputBuffer);
+                processCommand(inputBuffer);
                 inputBuffer = "";
             }
         }
         else
         {
-            if (inputBuffer.length() < 6)
+            // Allowed buffer increased to 32 to support command strings
+            if (inputBuffer.length() < 32)
             {
                 inputBuffer += inChar;
             }
@@ -153,20 +155,80 @@ void checkSerialCommands()
     }
 }
 
-void processThrottle(String command)
+void processCommand(String command)
 {
-    int parsedValue = command.toInt();
+    command.trim();
+    if (command.length() == 0) return;
 
+    // Check for thrust query (GET_THRUST, T, or THRUST?)
+    if (command.equalsIgnoreCase("GET_THRUST") || command.equalsIgnoreCase("T") || command.equalsIgnoreCase("THRUST?"))
+    {
+        Serial.print("THRUST=");
+        Serial.println(filteredThrust, 1);
+    }
+    // Check for throttle query (GET_THROTTLE, R, or THROTTLE?)
+    else if (command.equalsIgnoreCase("GET_THROTTLE") || command.equalsIgnoreCase("R") || command.equalsIgnoreCase("THROTTLE?"))
+    {
+        Serial.print("THROTTLE=");
+        Serial.println(dutyCycleUs);
+    }
+    // Check for explicit throttle commands like "SET_THROTTLE 1500" or "S 1500"
+    else if (command.startsWith("SET_THROTTLE ") || command.startsWith("S "))
+    {
+        int spaceIdx = command.indexOf(' ');
+        if (spaceIdx != -1)
+        {
+            String valStr = command.substring(spaceIdx + 1);
+            valStr.trim();
+            int parsedValue = valStr.toInt();
+            applyThrottle(parsedValue);
+        }
+        else
+        {
+            Serial.println("ERR: Missing throttle value.");
+        }
+    }
+    // Fallback: Check if command is a raw number (e.g. "1200") for backward compatibility
+    else if (isNumeric(command))
+    {
+        int parsedValue = command.toInt();
+        applyThrottle(parsedValue);
+    }
+    else
+    {
+        Serial.print("ERR: Unknown command '");
+        Serial.print(command);
+        Serial.println("'");
+    }
+}
+
+void applyThrottle(int parsedValue)
+{
     if (parsedValue >= 1000 && parsedValue <= 2000)
     {
         dutyCycleUs = parsedValue;
         setESCValue(dutyCycleUs); // Updates hardware register instantly
-        Serial.print(">> Throttle set to: ");
+        Serial.print("OK: Throttle set to ");
         Serial.println(dutyCycleUs);
         lastThrottleCmd = millis();
     }
     else
     {
-        Serial.println(">> Error: Out of range (1000-2000).");
+        Serial.println("ERR: Out of range (1000-2000).");
     }
+}
+
+// Simple helper to check if a string contains only a numeric value
+bool isNumeric(const String& str)
+{
+    if (str.length() == 0) return false;
+    for (unsigned int i = 0; i < str.length(); i++)
+    {
+        char c = str.charAt(i);
+        if (!isDigit(c) && c != '-' && c != '+')
+        {
+            return false;
+        }
+    }
+    return true;
 }
