@@ -48,6 +48,33 @@ def get_produced_thrust(ser: serial.Serial) -> float:
     
     return -1000.0
 
+def thrust_benchmark():
+    # perform a standard thrust benchmark with +/- 10% steps
+    duty_cycle_cmd = 1000
+    while duty_cycle_cmd < 1900:
+        if update_desired_throttle(serial_arduino, duty_cycle_cmd) == True:
+            time.sleep(2.7)
+            thrust = get_produced_thrust(serial_arduino)
+            # rpm       = ...
+            # current   = ...
+            # power     = ...
+            print(f">> Throttle = {duty_cycle_cmd} us | Thrust = {thrust} g")
+            duty_cycle_cmd += 100
+
+    while duty_cycle_cmd >= 1000:
+        if update_desired_throttle(serial_arduino, duty_cycle_cmd) == True:
+            time.sleep(2.7)
+            thrust = get_produced_thrust(serial_arduino)
+            # rpm       = ...
+            # current   = ...
+            # power     = ...
+            print(f">> Throttle = {duty_cycle_cmd} us | Thrust = {thrust} g")
+            duty_cycle_cmd -= 100
+
+def motor_cooling():
+    while True:
+        update_desired_throttle(serial_arduino, 1300)
+        time.sleep(2)
 
 #######################
 ### main entrypoint ###
@@ -63,21 +90,11 @@ try:
     print("Controller ready to receive commands.\n")
     time.sleep(1)
 
-    # perform a simple sweep up and down with +/- 10% steps
-    duty_cycle_cmd = 1000
-    while duty_cycle_cmd < 1600:
-        if update_desired_throttle(serial_arduino, duty_cycle_cmd) == True:
-            time.sleep(2.7)
-            thrust = get_produced_thrust(serial_arduino)
-            print(f">> Throttle = {duty_cycle_cmd} us | Thrust = {thrust} g")
-            duty_cycle_cmd += 100
+    # perform automatic thrust measurement 
+    # thrust_benchmark()
 
-    while duty_cycle_cmd >= 1000:
-        if update_desired_throttle(serial_arduino, duty_cycle_cmd) == True:
-            time.sleep(2.7)
-            thrust = get_produced_thrust(serial_arduino)
-            print(f">> Throttle = {duty_cycle_cmd} us | Thrust = {thrust} g")
-            duty_cycle_cmd -= 100
+    # spin at moderate speed for cooling airflow
+    motor_cooling()
 
 except KeyboardInterrupt:
     print("Wait for motor stop ...")
