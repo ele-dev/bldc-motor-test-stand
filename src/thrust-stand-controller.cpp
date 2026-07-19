@@ -18,7 +18,7 @@ unsigned long lastReportTime = 0;
 
 // periodic throttle commands must be received faster to keep motor spinning
 const bool safeThrottleControl = true;
-const unsigned long throttleCmdInterval = 3000;
+const unsigned long throttleCmdInterval = 4000;
 unsigned long lastThrottleCmd = 0;
 int dutyCycleUs = 1000; // Target pulse width in microseconds
 
