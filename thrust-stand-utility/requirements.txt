@@ -1,5 +1,6 @@
 easy-scpi
 pyserial
+pyvisa
 pyvisa-py
 psutil
 zeroconf

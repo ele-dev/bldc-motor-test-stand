@@ -6,8 +6,9 @@ import time
 devices = OwonSpePsu.enumerate_devices()
 print(devices)
 
-# serial_arduino = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
+# create serial connection interfaces for arduino and psu
 arduino = ArduinoController("/dev/ttyUSB0", 115200)
+psu = OwonSpePsu("/dev/ttyUSB1")
 
 duty_cycle_cmd = 1000
 decoded_line = ""
@@ -18,6 +19,8 @@ def thrust_benchmark(min_throttle: int = 1000, max_throttle: int = 2000, step_si
         min_throttle = 1000
     if max_throttle > 2000:
         max_throttle = 2000
+
+    print(f"Running a motor-propeller benchmark (from {min_throttle}us to {max_throttle}us with +/-{step_size}us steps)")
     
     # perform a standard thrust benchmark with given parameters
     duty_cycle_cmd = min_throttle
@@ -42,6 +45,8 @@ def thrust_benchmark(min_throttle: int = 1000, max_throttle: int = 2000, step_si
             duty_cycle_cmd -= step_size
 
 def motor_cooling(cooling_throttle: int = 1270):
+
+    print("Perform motor cooling at low constant RPM")
     # upper limit for effective cooling
     if cooling_throttle > 1350:
         cooling_throttle = 1350
@@ -56,11 +61,31 @@ def motor_cooling(cooling_throttle: int = 1270):
 #######################
 
 try:
+    # detect power supply
+    psu.open()
+    psu.identify()
+
+    # configure power supply
+    print("Configuring PSU ...")
+    psu.disable_output()
+    psu.voltage_setpoint = 15.0
+    psu.current_limit = 4.5
+
+    print("Enabling PSU output ...")
+    psu.enable_output()
+
+    time.sleep(2)
+
     # perform automatic thrust measurement 
-    # thrust_benchmark()
+    # thrust_benchmark(min_throttle=1150, max_throttle=1350, step_size=50)
 
     # spin at moderate speed for cooling airflow
-    motor_cooling(1420)
+    motor_cooling(1260)
+
+    time.sleep(2)
+
+    print("Disabling PSU output ...")
+    psu.disable_output()
 
 except KeyboardInterrupt:
     print("Wait for motor stop ...")
@@ -68,6 +93,10 @@ except KeyboardInterrupt:
         pass
 
     print("Throttle at zero.")
+    time.sleep(0.3)
+    print("Disabling PSU output ...")
+    psu.disable_output()
+
     time.sleep(1)
 
     del arduino
