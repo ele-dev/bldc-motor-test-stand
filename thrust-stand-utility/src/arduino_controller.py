@@ -26,6 +26,15 @@ class ArduinoController:
         self._serial: serial.Serial | None = None
         self.open()
 
+        init_message = ""
+        print("Waiting for controller ...")
+        while init_message.find("Setup complete.") == -1:
+            line = self._read_line()
+            if line:
+                init_message = line.decode('utf-8', errors='ignore').strip()
+
+        print("Controller ready to receive commands.\n")
+
     def __del__(self) -> None:
         self.close()
 
