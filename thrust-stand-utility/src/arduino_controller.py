@@ -14,7 +14,6 @@ class ArduinoController:
     def __init__(
         self,
         port: str | None = None,
-        *,
         baudrate: int = DEFAULT_BAUDRATE,
         timeout: float = DEFAULT_TIMEOUT,
         write_timeout: float = DEFAULT_WRITE_TIMEOUT,
@@ -29,9 +28,7 @@ class ArduinoController:
         init_message = ""
         print("Waiting for controller ...")
         while init_message.find("Setup complete.") == -1:
-            line = self._read_line()
-            if line:
-                init_message = line.decode('utf-8', errors='ignore').strip()
+            init_message = self._read_line()
 
         print("Controller ready to receive commands.\n")
 

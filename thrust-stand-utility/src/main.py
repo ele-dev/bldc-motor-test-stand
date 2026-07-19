@@ -12,10 +12,16 @@ arduino = ArduinoController("/dev/ttyUSB0", 115200)
 duty_cycle_cmd = 1000
 decoded_line = ""
 
-def thrust_benchmark():
-    # perform a standard thrust benchmark with +/- 10% steps
-    duty_cycle_cmd = 1000
-    while duty_cycle_cmd < 1900:
+def thrust_benchmark(min_throttle: int = 1000, max_throttle: int = 2000, step_size: int = 100):
+    # constrain min/max throttle to technical limits
+    if min_throttle < 1000:
+        min_throttle = 1000
+    if max_throttle > 2000:
+        max_throttle = 2000
+    
+    # perform a standard thrust benchmark with given parameters
+    duty_cycle_cmd = min_throttle
+    while duty_cycle_cmd < max_throttle:
         if arduino.update_desired_throttle(duty_cycle_cmd) == True:
             time.sleep(2.7)
             thrust = arduino.get_produced_thrust()
@@ -23,9 +29,9 @@ def thrust_benchmark():
             # current   = ...
             # power     = ...
             print(f">> Throttle = {duty_cycle_cmd} us | Thrust = {thrust} g")
-            duty_cycle_cmd += 100
+            duty_cycle_cmd += step_size
 
-    while duty_cycle_cmd >= 1000:
+    while duty_cycle_cmd >= min_throttle:
         if arduino.update_desired_throttle(duty_cycle_cmd) == True:
             time.sleep(2.7)
             thrust = arduino.get_produced_thrust()
@@ -33,11 +39,16 @@ def thrust_benchmark():
             # current   = ...
             # power     = ...
             print(f">> Throttle = {duty_cycle_cmd} us | Thrust = {thrust} g")
-            duty_cycle_cmd -= 100
+            duty_cycle_cmd -= step_size
 
-def motor_cooling():
+def motor_cooling(cooling_throttle: int = 1270):
+    # upper limit for effective cooling
+    if cooling_throttle > 1350:
+        cooling_throttle = 1350
+        print("Throttle limit is 1350 for effective cooling.")
+    
     while True:
-        arduino.update_desired_throttle(1300)
+        arduino.update_desired_throttle(cooling_throttle)
         time.sleep(2)
 
 #######################
@@ -49,7 +60,7 @@ try:
     # thrust_benchmark()
 
     # spin at moderate speed for cooling airflow
-    motor_cooling()
+    motor_cooling(1420)
 
 except KeyboardInterrupt:
     print("Wait for motor stop ...")
