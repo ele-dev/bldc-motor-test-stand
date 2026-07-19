@@ -27,9 +27,10 @@ def thrust_benchmark(min_throttle: int = 1000, max_throttle: int = 2000, step_si
             time.sleep(2.7)
             thrust = arduino.get_produced_thrust()
             # rpm       = ...
-            current   = psu.current
-            power     = psu.power
-            print(f">> Throttle = {duty_cycle_cmd} us | Current = {current} A | Power = {power} W | Thrust = {thrust} g")
+            current     = psu.current
+            power       = psu.power
+            efficiency  = thrust / power
+            print(f">> Throttle = {duty_cycle_cmd} us | Current = {current} A | Power = {power} W | Thrust = {thrust} g | Efficiency = {efficiency} g/W")
             duty_cycle_cmd += step_size
 
     while duty_cycle_cmd >= min_throttle:
@@ -37,9 +38,10 @@ def thrust_benchmark(min_throttle: int = 1000, max_throttle: int = 2000, step_si
             time.sleep(2.7)
             thrust = arduino.get_produced_thrust()
             # rpm       = ...
-            current   = psu.current
-            power     = psu.power
-            print(f">> Throttle = {duty_cycle_cmd} us | Current = {current} A | Power = {power} W | Thrust = {thrust} g")
+            current     = psu.current
+            power       = psu.power
+            efficiency  = thrust / power
+            print(f">> Throttle = {duty_cycle_cmd} us | Current = {current} A | Power = {power} W | Thrust = {thrust} g | Efficiency = {efficiency} g/W")
             duty_cycle_cmd -= step_size
 
 def motor_cooling(cooling_throttle: int = 1270):
@@ -64,19 +66,21 @@ try:
 
     # configure power supply
     print("Configuring PSU ...")
-    psu.off()
     psu.voltage_setpoint = 14.8
+    time.sleep(0.2)     # dirty fix!!
     psu.current_setpoint = 10.5
-
+    time.sleep(0.2)     # dirty fix!!
+    print("Set output voltage & current.")
+    
     print("Enabling PSU output ...")
     psu.on()
     time.sleep(5) # ESC needs a  few second to initialize!
 
     # perform automatic thrust measurement 
-    # thrust_benchmark(min_throttle=1150, max_throttle=1350, step_size=50)
+    thrust_benchmark(min_throttle=1150, max_throttle=1350, step_size=50)
 
     # spin at moderate speed for cooling airflow
-    motor_cooling(1260)
+    # motor_cooling(1260)
 
     time.sleep(2)
 

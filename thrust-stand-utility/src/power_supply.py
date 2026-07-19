@@ -12,7 +12,7 @@ class PowerSupply( scpi.Instrument ):
 
         # connect to power supply
         self.connect()
-        print("Connected to power supply.")
+        print(f"Connected to power supply at {self.port}.")
 
     # -------------------------- Control related -----------------------------
 

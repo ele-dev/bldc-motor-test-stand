@@ -26,7 +26,7 @@ class ArduinoController:
         self.open()
 
         init_message = ""
-        print("Waiting for controller ...")
+        print(f"Waiting for controller on {self.port} ...")
         while init_message.find("Setup complete.") == -1:
             init_message = self._read_line()
 
