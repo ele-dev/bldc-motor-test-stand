@@ -5,8 +5,8 @@ from arduino_controller import ArduinoController
 import time
 
 # create serial connection interfaces for arduino and psu
-arduino = ArduinoController("/dev/ttyUSB0", 115200)
-psu = PowerSupply("/dev/ttyUSB1", 115200)
+arduino = ArduinoController("COM3", 115200)
+psu = PowerSupply("COM4", 115200)
 
 duty_cycle_cmd = 1000
 decoded_line = ""
@@ -24,8 +24,8 @@ def thrust_benchmark(min_throttle: int = 1000, max_throttle: int = 2000, step_si
     duty_cycle_cmd = min_throttle
     while duty_cycle_cmd < max_throttle:
         if arduino.update_desired_throttle(duty_cycle_cmd) == True:
-            time.sleep(2.7)
-            thrust = arduino.get_produced_thrust()
+            time.sleep(3.5)
+            thrust      = arduino.get_produced_thrust()
             # rpm       = ...
             current     = psu.current
             power       = psu.power
@@ -35,8 +35,8 @@ def thrust_benchmark(min_throttle: int = 1000, max_throttle: int = 2000, step_si
 
     while duty_cycle_cmd >= min_throttle:
         if arduino.update_desired_throttle(duty_cycle_cmd) == True:
-            time.sleep(2.7)
-            thrust = arduino.get_produced_thrust()
+            time.sleep(3.5)
+            thrust      = arduino.get_produced_thrust()
             # rpm       = ...
             current     = psu.current
             power       = psu.power
@@ -77,7 +77,7 @@ try:
     time.sleep(5) # ESC needs a  few second to initialize!
 
     # perform automatic thrust measurement 
-    thrust_benchmark(min_throttle=1150, max_throttle=1350, step_size=50)
+    thrust_benchmark(min_throttle=1200, max_throttle=1500, step_size=50)
 
     # spin at moderate speed for cooling airflow
     # motor_cooling(1260)
