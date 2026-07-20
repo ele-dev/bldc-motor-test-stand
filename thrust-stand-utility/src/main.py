@@ -18,11 +18,11 @@ def thrust_benchmark(min_throttle: int = 1000, max_throttle: int = 2000, step_si
     if max_throttle > 2000:
         max_throttle = 2000
 
-    print(f"Running a motor-propeller benchmark (from {min_throttle}us to {max_throttle}us with +/-{step_size}us steps)")
+    print(f"\nRunning a motor-propeller benchmark (from {min_throttle} us to {max_throttle} us with +/-{step_size} us steps)")
     
     # perform a standard thrust benchmark with given parameters
     duty_cycle_cmd = min_throttle
-    while duty_cycle_cmd < max_throttle:
+    while duty_cycle_cmd <= max_throttle:
         if arduino.update_desired_throttle(duty_cycle_cmd) == True:
             time.sleep(3.5)
             thrust      = arduino.get_produced_thrust()
@@ -33,16 +33,9 @@ def thrust_benchmark(min_throttle: int = 1000, max_throttle: int = 2000, step_si
             print(f">> Throttle = {duty_cycle_cmd} us | Current = {current} A | Power = {power} W | Thrust = {thrust} g | Efficiency = {efficiency} g/W")
             duty_cycle_cmd += step_size
 
-    while duty_cycle_cmd >= min_throttle:
-        if arduino.update_desired_throttle(duty_cycle_cmd) == True:
-            time.sleep(3.5)
-            thrust      = arduino.get_produced_thrust()
-            # rpm       = ...
-            current     = psu.current
-            power       = psu.power
-            efficiency  = thrust / power
-            print(f">> Throttle = {duty_cycle_cmd} us | Current = {current} A | Power = {power} W | Thrust = {thrust} g | Efficiency = {efficiency} g/W")
-            duty_cycle_cmd -= step_size
+    # stop motor once benchmark is completed
+    print("Benchmark completed. Stop motors.\n")
+    arduino.update_desired_throttle(1000)
 
 def motor_cooling(cooling_throttle: int = 1270):
 
@@ -70,7 +63,7 @@ try:
     time.sleep(0.2)     # dirty fix!!
     psu.current_setpoint = 10.5
     time.sleep(0.2)     # dirty fix!!
-    print("Set output voltage & current.")
+    print("Set DC output voltage and current setpoints.")
     
     print("Enabling PSU output ...")
     psu.on()
@@ -82,7 +75,7 @@ try:
     # spin at moderate speed for cooling airflow
     # motor_cooling(1260)
 
-    time.sleep(2)
+    time.sleep(3)
 
     print("Disabling PSU output ...")
     psu.off()
