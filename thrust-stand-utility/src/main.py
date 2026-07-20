@@ -30,7 +30,7 @@ def thrust_benchmark(min_throttle: int = 1000, max_throttle: int = 2000, step_si
             current     = psu.current
             power       = psu.power
             efficiency  = thrust / power
-            
+
             print(
                 f">> Throttle = {duty_cycle_cmd:>4d} us | "
                 f"Current = {current:>6.3f} A | "
@@ -66,9 +66,9 @@ try:
 
     # configure power supply
     print("Configuring PSU ...")
-    psu.voltage_setpoint = 14.8
+    psu.voltage_setpoint = 11.1
     time.sleep(0.2)     # dirty fix!!
-    psu.current_setpoint = 10.5
+    psu.current_setpoint = 12.5
     time.sleep(0.2)     # dirty fix!!
     print("Set DC output voltage and current setpoints.")
     
@@ -77,7 +77,7 @@ try:
     time.sleep(5) # ESC needs a  few second to initialize!
 
     # perform automatic thrust measurement 
-    thrust_benchmark(min_throttle=1200, max_throttle=1500, step_size=50)
+    thrust_benchmark(min_throttle=1300, max_throttle=2000, step_size=100)
 
     # spin at moderate speed for cooling airflow
     # motor_cooling(1260)
