@@ -30,7 +30,14 @@ def thrust_benchmark(min_throttle: int = 1000, max_throttle: int = 2000, step_si
             current     = psu.current
             power       = psu.power
             efficiency  = thrust / power
-            print(f">> Throttle = {duty_cycle_cmd} us | Current = {current} A | Power = {power} W | Thrust = {thrust} g | Efficiency = {efficiency} g/W")
+            
+            print(
+                f">> Throttle = {duty_cycle_cmd:>4d} us | "
+                f"Current = {current:>6.3f} A | "
+                f"Power = {power:>6.2f} W | "
+                f"Thrust = {thrust:>6.1f} g | "
+                f"Efficiency = {efficiency:>6.3f} g/W"
+            )
             duty_cycle_cmd += step_size
 
     # stop motor once benchmark is completed
