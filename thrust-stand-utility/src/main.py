@@ -11,14 +11,38 @@ psu = PowerSupply("COM4", 115200)
 duty_cycle_cmd = 1000
 decoded_line = ""
 
-def thrust_benchmark(min_throttle: int = 1000, max_throttle: int = 2000, step_size: int = 100):
+def thrust_benchmark(supply_voltage: float = 11.1, min_throttle: int = 1000, max_throttle: int = 2000, step_size: int = 100):
+    # constrain the supply voltage
+    if supply_voltage < 7.4:
+        supply_voltage = 7.4
+    if supply_voltage > 16.8:
+        supply_voltage = 16.8
+
     # constrain min/max throttle to technical limits
     if min_throttle < 1000:
         min_throttle = 1000
     if max_throttle > 2000:
         max_throttle = 2000
 
-    print(f"\nRunning a motor-propeller benchmark (from {min_throttle} us to {max_throttle} us with +/-{step_size} us steps)")
+    # gather info about motor and propeller
+    print("Motor model: ")
+    motor_model = input()
+    print("Propeller model: ")
+    propeller_model = input()
+
+    # prepare power supply
+    print("Preparing power supply ...")
+    psu.off()
+    time.sleep(0.2)
+    psu.voltage_setpoint = supply_voltage
+    time.sleep(0.2)     # dirty fix!!
+    psu.current_setpoint = 12.5
+    time.sleep(0.2)     # dirty fix!!
+    print("Enabling output ...")
+    psu.on()
+    time.sleep(5) # ESC needs a  few second to initialize!
+
+    print(f"\nRunning a motor-propeller benchmark @ {supply_voltage} V (from {min_throttle} us to {max_throttle} us with +/-{step_size} us steps)")
     
     # perform a standard thrust benchmark with given parameters
     duty_cycle_cmd = min_throttle
@@ -43,44 +67,53 @@ def thrust_benchmark(min_throttle: int = 1000, max_throttle: int = 2000, step_si
     # stop motor once benchmark is completed
     print("Benchmark completed. Stop motors.\n")
     arduino.update_desired_throttle(1000)
+    time.sleep(1)
 
-def motor_cooling(cooling_throttle: int = 1270):
+    # disable power supply output
+    psu.off()
 
-    print("Perform motor cooling at low constant RPM")
+def motor_cooling(supply_voltage: float = 11.1, cooling_throttle: int = 1270):
+    # constrain the supply voltage
+    if supply_voltage < 7.4:
+        supply_voltage = 7.4
+    if supply_voltage > 16.8:
+        supply_voltage = 16.8
+    
     # upper limit for effective cooling
     if cooling_throttle > 1350:
         cooling_throttle = 1350
         print("Throttle limit is 1350 for effective cooling.")
+
+    # prepare power supply
+    print("Preparing power supply ...")
+    psu.off()
+    time.sleep(0.2)
+    psu.voltage_setpoint = supply_voltage
+    time.sleep(0.2)     # dirty fix!!
+    psu.current_setpoint = 12.5
+    time.sleep(0.2)     # dirty fix!!
+    print("Enabling output ...")
+    psu.on()
+    time.sleep(5) # ESC needs a  few second to initialize!
     
+    print("Perform motor cooling at low constant RPM")
     while True:
         arduino.update_desired_throttle(cooling_throttle)
-        time.sleep(2)
+        time.sleep(3)
 
 #######################
 ### main entrypoint ###
 #######################
 
 try:
-    # detect power supply
+    # identify available power supply
     print(f"Power supply ready: {psu.id}")
 
-    # configure power supply
-    print("Configuring PSU ...")
-    psu.voltage_setpoint = 11.1
-    time.sleep(0.2)     # dirty fix!!
-    psu.current_setpoint = 12.5
-    time.sleep(0.2)     # dirty fix!!
-    print("Set DC output voltage and current setpoints.")
-    
-    print("Enabling PSU output ...")
-    psu.on()
-    time.sleep(5) # ESC needs a  few second to initialize!
-
     # perform automatic thrust measurement 
-    thrust_benchmark(min_throttle=1300, max_throttle=2000, step_size=100)
+    thrust_benchmark(supply_voltage=11.1, min_throttle=1300, max_throttle=1600, step_size=100)
 
     # spin at moderate speed for cooling airflow
-    # motor_cooling(1260)
+    # motor_cooling(12.4, 1260)
 
     time.sleep(3)
 
