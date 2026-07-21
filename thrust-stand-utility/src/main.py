@@ -69,8 +69,7 @@ def thrust_benchmark(supply_voltage: float = 11.1, min_throttle: int = 1000, max
                 f"Thrust = {thrust:>6.1f} g | "
                 f"Efficiency = {efficiency:>6.3f} g/W"
             )
-            duty_cycle_cmd += step_size
-
+            
             # add data point to the list
             data_points.append(
                 {
@@ -81,6 +80,8 @@ def thrust_benchmark(supply_voltage: float = 11.1, min_throttle: int = 1000, max
                     'efficiency_gw': efficiency
                 }
             )
+
+            duty_cycle_cmd += step_size
 
     # stop motor once benchmark is completed
     print("Benchmark completed. Stop motors.")
@@ -175,7 +176,7 @@ if __name__ == "__main__":
         print(f"Power supply ready: {psu.id}")
 
         # perform automatic thrust measurement 
-        thrust_benchmark(supply_voltage=11.1, min_throttle=1300, max_throttle=1500, step_size=100)
+        thrust_benchmark(supply_voltage=11.1, min_throttle=1300, max_throttle=1700, step_size=100)
 
         # spin at moderate speed for cooling airflow
         # motor_cooling(12.4, 1260)
